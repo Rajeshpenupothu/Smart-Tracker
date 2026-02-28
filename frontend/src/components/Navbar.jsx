@@ -18,7 +18,7 @@ const Navbar = () => {
                     <>
                         <Link to="/">Home</Link>
                         <Link to="/activity">Activity</Link>
-                        <a href="#" onClick={handleLogout} style={{ cursor: 'pointer' }}>Logout ({user.username})</a>
+                        <a href="#" onClick={handleLogout} style={{ cursor: 'pointer' }}>Logout</a>
                     </>
                 ) : (
                     <>
