@@ -216,7 +216,7 @@ const CodingChallengesSection = ({ task, setTask, onSave, isReadOnly }) => {
 };
 
 const DailyLog = () => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
     const user = JSON.parse(localStorage.getItem('user')) || { username: 'Guest' };
 
     const savedSelectedDate = localStorage.getItem('selectedDate') || todayStr;
