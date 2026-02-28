@@ -1,0 +1,46 @@
+# =====================
+# BACKEND (Java/Maven)
+# =====================
+backend/target/
+backend/*.log
+backend/*.txt
+backend/.env
+backend/mvnw
+backend/.mvn/
+!backend/.mvn/wrapper/maven-wrapper.properties
+
+# =====================
+# FRONTEND (Node/Vite/React)
+# =====================
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# =====================
+# IDE & Editor
+# =====================
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# =====================
+# OS Generated
+# =====================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =====================
+# Logs & Temp
+# =====================
+*.log
+*.tmp
+*.bak
+out.txt
