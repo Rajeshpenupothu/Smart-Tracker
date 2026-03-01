@@ -24,8 +24,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
@@ -34,10 +34,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
-        Optional<User> userOpt = userRepository.findByUsername(loginRequest.getUsername());
+        Optional<User> userOpt = userRepository.findByEmail(loginRequest.getEmail());
         
         if (!userOpt.isPresent()) {
-            return ResponseEntity.status(404).body("Username not found");
+            return ResponseEntity.status(404).body("Email not found");
         }
         
         if (!passwordEncoder.matches(loginRequest.getPassword(), userOpt.get().getPassword())) {
@@ -45,7 +45,8 @@ public class AuthController {
         }
         
         Map<String, String> response = new HashMap<>();
-        response.put("username", userOpt.get().getUsername());
+        response.put("email", userOpt.get().getEmail());
+        response.put("fullName", userOpt.get().getFullName());
         response.put("message", "Login successful");
         return ResponseEntity.ok(response);
     }

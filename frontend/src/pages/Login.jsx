@@ -4,182 +4,102 @@ import axios from 'axios';
 import API_URL from '../api';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setError('');
+        setIsLoading(true);
         try {
-            const res = await axios.post(`${API_URL}/api/auth/login`, { username, password });
+            const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
             localStorage.setItem('user', JSON.stringify(res.data));
             navigate('/');
         } catch (err) {
-            if (err.response && err.response.data) {
-                setError(typeof err.response.data === 'string' ? err.response.data : 'Invalid credentials');
-            } else {
-                setError('Login failed. Please check your connection.');
-            }
+            setError(err.response?.data || 'Invalid email or password');
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '80vh',
-            padding: '2rem',
-            position: 'relative'
-        }}>
-            {/* Background glowing orb effect */}
-            <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '400px',
-                height: '400px',
-                background: 'radial-gradient(circle, rgba(0,255,157,0.15) 0%, rgba(13,17,23,0) 70%)',
-                zIndex: 0,
-                pointerEvents: 'none'
-            }}></div>
+    const EyeIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    );
 
-            <div style={{
-                width: '100%',
-                maxWidth: '420px',
-                backgroundColor: 'rgba(22, 27, 34, 0.7)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(48, 54, 61, 0.5)',
-                borderRadius: '16px',
-                padding: '3rem',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                position: 'relative',
-                zIndex: 1
-            }}>
-                <h1 style={{
-                    textAlign: 'center',
-                    marginBottom: '2rem',
-                    background: 'linear-gradient(90deg, #00ff9d 0%, #00b8ff 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    fontSize: '2.5rem',
-                    fontWeight: 'bold'
-                }}>
-                    Welcome Back
-                </h1>
+    const EyeOffIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+    );
+
+    return (
+        <div className="auth-container">
+            <div className="glass-card">
+                <div className="auth-header">
+                    <h1>Welcome Back</h1>
+                    <p>Enter your credentials to access your tracker</p>
+                </div>
 
                 {error && (
                     <div style={{
                         backgroundColor: 'rgba(255, 68, 68, 0.1)',
                         borderLeft: '4px solid #ff4444',
-                        padding: '10px',
+                        padding: '12px',
                         marginBottom: '1.5rem',
-                        borderRadius: '4px',
+                        borderRadius: '6px',
                         color: '#ff4444',
-                        textAlign: 'center'
+                        fontSize: '0.9rem'
                     }}>
                         {error}
                     </div>
                 )}
 
                 <form onSubmit={handleLogin}>
-                    <div className="input-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#c9d1d9', fontWeight: '500' }}>Username</label>
+                    <div className="input-field-group">
+                        <label>Email Address</label>
                         <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
-                            style={{
-                                width: '100%',
-                                padding: '14px',
-                                backgroundColor: 'rgba(13, 17, 23, 0.8)',
-                                border: '1px solid #30363d',
-                                borderRadius: '8px',
-                                color: 'white',
-                                transition: 'all 0.3s ease',
-                                outline: 'none'
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = '#00ff9d'}
-                            onBlur={(e) => e.target.style.borderColor = '#30363d'}
-                            placeholder="Enter your username"
+                            placeholder="name@company.com"
                         />
                     </div>
 
-                    <div className="input-group" style={{ marginBottom: '2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#c9d1d9', fontWeight: '500' }}>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            style={{
-                                width: '100%',
-                                padding: '14px',
-                                backgroundColor: 'rgba(13, 17, 23, 0.8)',
-                                border: '1px solid #30363d',
-                                borderRadius: '8px',
-                                color: 'white',
-                                transition: 'all 0.3s ease',
-                                outline: 'none'
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = '#00ff9d'}
-                            onBlur={(e) => e.target.style.borderColor = '#30363d'}
-                            placeholder="Enter your password"
-                        />
+                    <div className="input-field-group">
+                        <label>Password</label>
+                        <div className="password-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                            </button>
+                        </div>
                     </div>
 
                     <button
                         type="submit"
-                        style={{
-                            width: '100%',
-                            padding: '14px',
-                            background: 'linear-gradient(90deg, #00ff9d 0%, #00cc7d 100%)',
-                            color: '#0d1117',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '1.1rem',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s, box-shadow 0.2s',
-                            boxShadow: '0 4px 14px rgba(0, 255, 157, 0.3)'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.transform = 'translateY(-2px)';
-                            e.target.style.boxShadow = '0 6px 20px rgba(0, 255, 157, 0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.transform = 'translateY(0)';
-                            e.target.style.boxShadow = '0 4px 14px rgba(0, 255, 157, 0.3)';
-                        }}
+                        className="auth-button"
+                        disabled={isLoading}
                     >
-                        Sign In
+                        {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
 
-                <div style={{
-                    textAlign: 'center',
-                    marginTop: '2rem',
-                    color: '#8b949e',
-                    borderTop: '1px solid #30363d',
-                    paddingTop: '1.5rem'
-                }}>
-                    New to Smart Tracker?{' '}
-                    <Link
-                        to="/register"
-                        style={{
-                            color: '#00b8ff',
-                            textDecoration: 'none',
-                            fontWeight: '600',
-                            transition: 'color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.color = '#00ff9d'}
-                        onMouseLeave={(e) => e.target.style.color = '#00b8ff'}
-                    >
-                        Create an account
-                    </Link>
+                <div className="auth-footer">
+                    New here?{' '}
+                    <Link to="/register">Create an account</Link>
                 </div>
             </div>
         </div>

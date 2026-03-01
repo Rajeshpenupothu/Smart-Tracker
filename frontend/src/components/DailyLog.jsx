@@ -287,7 +287,7 @@ const HourlyTrackSection = ({ task, setTask, isReadOnly, onSave }) => {
 
 const DailyLog = () => {
     const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
-    const user = JSON.parse(localStorage.getItem('user')) || { username: 'Guest' };
+    const user = JSON.parse(localStorage.getItem('user')) || { fullName: 'Guest' };
 
     const savedSelectedDate = localStorage.getItem('selectedDate') || todayStr;
     const [selectedDate, setSelectedDate] = useState(savedSelectedDate);
@@ -428,7 +428,7 @@ const DailyLog = () => {
                     WebkitTextFillColor: 'transparent',
                     margin: '0.5rem 0 0.25rem'
                 }}>
-                    Welcome back, {user.username}
+                    Welcome back, {user.fullName}
                 </h1>
             </div>
 
