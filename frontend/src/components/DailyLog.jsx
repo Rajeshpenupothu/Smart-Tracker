@@ -287,7 +287,17 @@ const HourlyTrackSection = ({ task, setTask, isReadOnly, onSave }) => {
 
 const DailyLog = () => {
     const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
-    const user = JSON.parse(localStorage.getItem('user')) || { fullName: 'Guest' };
+    const getUser = () => {
+        try {
+            const data = localStorage.getItem('user');
+            return data ? JSON.parse(data) : { fullName: 'Guest' };
+        } catch (e) {
+            console.error('Error parsing user data', e);
+            localStorage.removeItem('user');
+            return { fullName: 'Guest' };
+        }
+    };
+    const user = getUser();
 
     const savedSelectedDate = localStorage.getItem('selectedDate') || todayStr;
     const [selectedDate, setSelectedDate] = useState(savedSelectedDate);

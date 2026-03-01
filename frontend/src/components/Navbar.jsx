@@ -3,7 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem('user'));
+    const getUser = () => {
+        try {
+            const data = localStorage.getItem('user');
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            console.error('Error parsing user data', e);
+            localStorage.removeItem('user');
+            return null;
+        }
+    };
+    const user = getUser();
 
     const handleLogout = () => {
         localStorage.removeItem('user');
