@@ -2,7 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import DailyLog from './components/DailyLog';
-import Activity from './pages/Activity';
+import DailyLogs from './pages/DailyLogs';
+import Favorites from './pages/Favorites';
+import Tracker from './pages/Tracker';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
@@ -43,9 +45,19 @@ function App() {
             <DailyLog />
           </PrivateRoute>
         } />
-        <Route path="/activity" element={
+        <Route path="/daily-logs" element={
           <PrivateRoute>
-            <Activity />
+            <DailyLogs />
+          </PrivateRoute>
+        } />
+        <Route path="/favorites" element={
+          <PrivateRoute>
+            <Favorites />
+          </PrivateRoute>
+        } />
+        <Route path="/tracker" element={
+          <PrivateRoute>
+            <Tracker />
           </PrivateRoute>
         } />
         <Route path="/login" element={<Login />} />
