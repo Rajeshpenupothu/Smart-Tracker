@@ -215,6 +215,76 @@ const CodingChallengesSection = ({ task, setTask, onSave, isReadOnly }) => {
     );
 };
 
+const HourlyTrackSection = ({ task, setTask, isReadOnly, onSave }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const hourlyLog = task.hourlyLog || {};
+
+    const handleHourChange = (hour, value) => {
+        if (isReadOnly) return;
+        const newHourlyLog = { ...hourlyLog, [hour]: value };
+        setTask({ ...task, hourlyLog: newHourlyLog });
+    };
+
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+
+    const getHourLabel = (h) => {
+        if (h === 0) return "12 AM";
+        if (h < 12) return `${h} AM`;
+        if (h === 12) return "12 PM";
+        return `${h - 12} PM`;
+    };
+
+    return (
+        <div
+            className="section-card"
+            onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget)) {
+                    if (!isReadOnly && onSave) onSave(true);
+                }
+            }}
+        >
+            <div
+                className="section-header"
+                style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    🕒 24-Hour Track Me
+                </div>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#8b949e',
+                    transition: 'transform 0.2s',
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.78 6.22a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06 0L3.22 7.28a.75.75 0 011.06-1.06L8 9.94l3.72-3.72a.75.75 0 011.06 0z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            {isExpanded && (
+                <div className="hourly-grid">
+                    {hours.map((h) => (
+                        <div key={h} className="hour-row">
+                            <span className="hour-label">{getHourLabel(h)}</span>
+                            <input
+                                type="text"
+                                className="hour-input"
+                                placeholder="What did you do?"
+                                value={hourlyLog[h] || ''}
+                                readOnly={isReadOnly}
+                                onChange={(e) => handleHourChange(h, e.target.value)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const DailyLog = () => {
     const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
     const user = JSON.parse(localStorage.getItem('user')) || { username: 'Guest' };
@@ -228,7 +298,8 @@ const DailyLog = () => {
         javaPracticeList: [],
         bookReadingList: [],
         newSkillList: [],
-        notes: ''
+        notes: '',
+        hourlyLog: {}
     });
     const [quote, setQuote] = useState({ text: 'Loading motivation...', author: 'AI' });
     const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error', ''
@@ -240,7 +311,8 @@ const DailyLog = () => {
     const hasProgress = task.javaPracticeList?.length > 0 ||
         task.bookReadingList?.length > 0 ||
         task.newSkillList?.length > 0 ||
-        task.notes || task.leetCodeCompleted || task.gfgCompleted;
+        task.notes || task.leetCodeCompleted || task.gfgCompleted ||
+        Object.keys(task.hourlyLog || {}).some(k => task.hourlyLog[k]);
 
     useEffect(() => {
         fetchTask(selectedDate);
@@ -264,7 +336,10 @@ const DailyLog = () => {
         try {
             const res = await axios.get(`${API_URL}/api/tasks/${date}`);
             if (res.data.id) {
-                setTask(res.data);
+                setTask({
+                    ...res.data,
+                    hourlyLog: res.data.completedTasks?.hourlyLog || {}
+                });
             } else {
                 resetTaskForDate(date);
             }
@@ -282,14 +357,23 @@ const DailyLog = () => {
             javaPracticeList: [],
             bookReadingList: [],
             newSkillList: [],
-            notes: ''
+            notes: '',
+            hourlyLog: {}
         });
     };
 
     const handleSave = async (silent = false) => {
         if (silent === true) setSaveStatus('saving');
         try {
-            await axios.post(`${API_URL}/api/tasks`, task);
+            // Merge hourlyLog into completedTasks before saving
+            const taskToSave = {
+                ...task,
+                completedTasks: {
+                    ...task.completedTasks,
+                    hourlyLog: task.hourlyLog
+                }
+            };
+            await axios.post(`${API_URL}/api/tasks`, taskToSave);
             if (silent === true) {
                 setSaveStatus('saved');
                 if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
@@ -454,6 +538,13 @@ const DailyLog = () => {
                         setTask={setTask}
                         onSave={handleSave}
                         isReadOnly={isReadOnly}
+                    />
+
+                    <HourlyTrackSection
+                        task={task}
+                        setTask={setTask}
+                        isReadOnly={isReadOnly}
+                        onSave={handleSave}
                     />
 
                     <NotesSection

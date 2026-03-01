@@ -17,7 +17,14 @@ const Navbar = () => {
                 {user ? (
                     <>
                         <Link to="/">Home</Link>
-                        <Link to="/activity">Activity</Link>
+                        <div className="dropdown">
+                            <Link to="/activity" className="dropbtn">Activity</Link>
+                            <div className="dropdown-content">
+                                <Link to="/activity?view=logs">Daily Logs</Link>
+                                <Link to="/activity?view=favorites">Favorites</Link>
+                                <Link to="/activity?view=tracker">24-Hour Tracker</Link>
+                            </div>
+                        </div>
                         <a href="#" onClick={handleLogout} style={{ cursor: 'pointer' }}>Logout</a>
                     </>
                 ) : (
