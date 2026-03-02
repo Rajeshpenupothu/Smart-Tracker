@@ -3,6 +3,7 @@ import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import API_URL from '../api';
+import { formatDisplayDate } from '../utils/dateUtils';
 
 const DailyLogs = () => {
     const todayStr = new Date().toLocaleDateString('en-CA');
@@ -14,6 +15,13 @@ const DailyLogs = () => {
     useEffect(() => {
         fetchLogForDate(selectedDate);
     }, [selectedDate]);
+
+    useEffect(() => {
+        const handleCloseCalendars = () => setIsCalendarVisible(false);
+        document.addEventListener('close-calendars', handleCloseCalendars);
+        return () => document.removeEventListener('close-calendars', handleCloseCalendars);
+    }, []);
+
 
     const fetchLogForDate = async (date) => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -44,7 +52,7 @@ const DailyLogs = () => {
                     onClick={() => setIsCalendarVisible(!isCalendarVisible)}
                 >
                     <span>📅 Choose date: </span>
-                    <strong>{selectedDate}</strong>
+                    <strong>{formatDisplayDate(selectedDate)}</strong>
                     <svg
                         width="12"
                         height="12"
@@ -89,7 +97,7 @@ const DailyLogs = () => {
             <div style={{ animation: 'fadeIn 0.3s ease-in' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem', gap: '1rem', alignItems: 'center' }}>
                     <div style={{ position: 'relative' }}>
-                        <span style={{ fontSize: '1.2rem', color: '#00ff9d', fontWeight: 'bold' }}>{selectedDate}</span>
+                        <span style={{ fontSize: '1.2rem', color: '#00ff9d', fontWeight: 'bold' }}>{formatDisplayDate(selectedDate)}</span>
                     </div>
                 </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import API_URL from '../api';
+import { formatDisplayDate } from '../utils/dateUtils';
 
 const TaskItem = ({ title, emoji, field, task, setTask, onSave, customActions = null, isReadOnly }) => {
     const listField = field + "List";
@@ -311,8 +312,7 @@ const DailyLog = () => {
     });
     const [quote, setQuote] = useState({ text: 'Loading motivation...', author: 'AI' });
     const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error', ''
-    const [starVisible, setStarVisible] = useState(false);
-    const [starHovered, setStarHovered] = useState(false);
+
     const statusTimeoutRef = useRef(null);
 
     const isReadOnly = selectedDate !== todayStr;
@@ -418,20 +418,7 @@ const DailyLog = () => {
         }
     };
 
-    const handleMarkSpecialDay = async () => {
-        const title = window.prompt("What makes this day special? (e.g. First Job, Hackathon)", task.favoriteTitle || "");
-        if (title !== null) {
-            const isFav = title.trim().length > 0;
-            const updatedTask = {
-                ...task,
-                isFavorite: isFav,
-                favoriteTitle: title.trim()
-            };
-            setTask(updatedTask);
-            // We need to pass the updated task to handleSave or use a functional update
-            setTimeout(() => handleSave(false), 100);
-        }
-    };
+
 
 
 
@@ -462,57 +449,11 @@ const DailyLog = () => {
             <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', margin: '1rem 0 2rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 'clamp(0.9rem, 3vw, 1.1rem)', color: '#8b949e' }}>📅</span>
                 <span style={{ fontSize: 'clamp(1rem, 4vw, 1.3rem)', fontWeight: '600', color: '#c9d1d9', letterSpacing: '0.5px' }}>
-                    Log for <span style={{ color: '#00ff9d' }}>{selectedDate}</span>
+                    Log for <span style={{ color: '#00ff9d' }}>{formatDisplayDate(selectedDate)}</span>
                 </span>
                 {saveStatus === 'saving' && <span style={{ fontSize: '0.9rem', color: '#58a6ff' }}>⏳</span>}
                 {saveStatus === 'saved' && <span style={{ fontSize: '0.9rem', color: '#3fb950' }}>✅</span>}
                 {saveStatus === 'error' && <span style={{ fontSize: '0.9rem', color: '#f85149' }}>❌</span>}
-
-                <div
-                    onClick={handleMarkSpecialDay}
-                    onMouseEnter={() => setStarHovered(true)}
-                    onMouseLeave={() => setStarHovered(false)}
-                    style={{
-                        position: 'absolute',
-                        right: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: '8px',
-                        border: `1.5px solid ${starHovered ? '#f0a500' : '#30363d'}`,
-                        backgroundColor: starHovered ? 'rgba(240,165,0,0.12)' : 'transparent',
-                        color: starHovered ? '#f0a500' : '#484f58',
-                        cursor: 'pointer',
-                        fontSize: '1rem',
-                        transition: 'all 0.3s ease',
-                        transform: starHovered ? 'scale(1.1)' : 'scale(1)',
-                        userSelect: 'none',
-                        boxShadow: starHovered ? '0 0 12px rgba(240,165,0,0.25)' : 'none'
-                    }}
-                >
-                    ★
-                    {starHovered && (
-                        <div style={{
-                            position: 'absolute',
-                            bottom: '110%',
-                            right: 0,
-                            backgroundColor: '#1c2128',
-                            color: '#c9d1d9',
-                            fontSize: '0.75rem',
-                            padding: '5px 10px',
-                            borderRadius: '6px',
-                            whiteSpace: 'nowrap',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                            border: '1px solid #30363d',
-                            pointerEvents: 'none',
-                            zIndex: 99
-                        }}>
-                            Add this day to your favourites
-                        </div>
-                    )}
-                </div>
             </div>
 
             {isReadOnly && !hasProgress ? (
@@ -526,7 +467,7 @@ const DailyLog = () => {
                 }}>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏜️</div>
                     <h3 style={{ color: '#8b949e', fontWeight: '400' }}>No progress logged for this day.</h3>
-                    <p style={{ color: '#484f58', fontSize: '0.9rem' }}>It looks like you didn't record any activities on {selectedDate}.</p>
+                    <p style={{ color: '#484f58', fontSize: '0.9rem' }}>It looks like you didn't record any activities on {formatDisplayDate(selectedDate)}.</p>
                 </div>
             ) : (
                 <>

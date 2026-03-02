@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import DailyLog from './components/DailyLog';
 import DailyLogs from './pages/DailyLogs';
-import Favorites from './pages/Favorites';
+
 import Tracker from './pages/Tracker';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -50,11 +50,7 @@ function App() {
             <DailyLogs />
           </PrivateRoute>
         } />
-        <Route path="/favorites" element={
-          <PrivateRoute>
-            <Favorites />
-          </PrivateRoute>
-        } />
+
         <Route path="/tracker" element={
           <PrivateRoute>
             <Tracker />

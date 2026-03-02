@@ -3,6 +3,7 @@ import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import API_URL from '../api';
+import { formatDisplayDate } from '../utils/dateUtils';
 
 const Tracker = () => {
     const todayStr = new Date().toLocaleDateString('en-CA');
@@ -14,6 +15,13 @@ const Tracker = () => {
     useEffect(() => {
         fetchTrackerData(selectedDate);
     }, [selectedDate]);
+
+    useEffect(() => {
+        const handleCloseCalendars = () => setIsCalendarVisible(false);
+        document.addEventListener('close-calendars', handleCloseCalendars);
+        return () => document.removeEventListener('close-calendars', handleCloseCalendars);
+    }, []);
+
 
     const fetchTrackerData = async (date) => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -53,14 +61,27 @@ const Tracker = () => {
                     onClick={() => setIsCalendarVisible(!isCalendarVisible)}
                 >
                     <span>📅 Choose date: </span>
-                    <strong>{selectedDate}</strong>
-                    <span style={{
-                        marginLeft: '5px',
-                        transition: 'transform 0.3s',
-                        display: 'inline-block',
-                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
-                        opacity: 0.5
-                    }}>▼</span>
+                    <strong>{formatDisplayDate(selectedDate)}</strong>
+                    <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{
+                            marginLeft: '8px',
+                            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
+                            opacity: 0.8,
+                            color: isCalendarVisible ? '#00ff9d' : 'inherit'
+                        }}
+                    >
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+
                 </button>
 
                 {isCalendarVisible && (
@@ -84,7 +105,7 @@ const Tracker = () => {
             </div>
 
             <div style={{ animation: 'fadeIn 0.3s ease-in' }}>
-                <h2 style={{ textAlign: 'center', color: '#8b949e', marginBottom: '2rem' }}>Timeline: {selectedDate}</h2>
+                <h2 style={{ textAlign: 'center', color: '#8b949e', marginBottom: '2rem' }}>Timeline: {formatDisplayDate(selectedDate)}</h2>
 
                 {isLoading ? (
                     <div style={{ textAlign: 'center', color: '#8b949e' }}>Loading timeline...</div>
@@ -94,7 +115,7 @@ const Tracker = () => {
                         <h3 style={{ color: '#00ff9d', fontWeight: '600', marginBottom: '1rem', maxWidth: '500px', margin: '0 auto' }}>
                             “The future is unwritten. Start tracking today to build tomorrow’s progress!”
                         </h3>
-                        <p style={{ color: '#8b949e' }}>Your daily logs for {selectedDate} will appear here once the day arrives.</p>
+                        <p style={{ color: '#8b949e' }}>Your daily logs for {formatDisplayDate(selectedDate)} will appear here once the day arrives.</p>
                     </div>
                 ) : (
                     <div className="timeline">
