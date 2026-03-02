@@ -9,6 +9,7 @@ const Tracker = () => {
     const [selectedDate, setSelectedDate] = useState(todayStr);
     const [hourlyLog, setHourlyLog] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
     useEffect(() => {
         fetchTrackerData(selectedDate);
@@ -46,14 +47,33 @@ const Tracker = () => {
         <div className="container">
             <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#00ff9d' }}>24-Hour Tracker</h1>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3rem', gap: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ padding: '20px', backgroundColor: '#161b22', borderRadius: '12px', border: '1px solid #30363d' }}>
-                    <Calendar
-                        className="dark-theme-calendar"
-                        onChange={handleDateChange}
-                        value={new Date(selectedDate)}
-                    />
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem', gap: '1rem' }}>
+                <button
+                    className="premium-toggle-btn"
+                    onClick={() => setIsCalendarVisible(!isCalendarVisible)}
+                >
+                    <span>📅 Choose date: </span>
+                    <span style={{ color: '#00ff9d', fontWeight: 'bold', marginLeft: '5px' }}>{selectedDate}</span>
+                    <span style={{
+                        marginLeft: '10px',
+                        transition: 'transform 0.3s',
+                        display: 'inline-block',
+                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}>▼</span>
+                </button>
+
+                {isCalendarVisible && (
+                    <div className="premium-calendar-container">
+                        <Calendar
+                            className="dark-theme-calendar"
+                            onChange={(date) => {
+                                handleDateChange(date);
+                                setIsCalendarVisible(false);
+                            }}
+                            value={new Date(selectedDate)}
+                        />
+                    </div>
+                )}
             </div>
 
             <div style={{ animation: 'fadeIn 0.3s ease-in' }}>
@@ -61,6 +81,14 @@ const Tracker = () => {
 
                 {isLoading ? (
                     <div style={{ textAlign: 'center', color: '#8b949e' }}>Loading timeline...</div>
+                ) : selectedDate > todayStr ? (
+                    <div className="future-state">
+                        <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>🌱</div>
+                        <h3 style={{ color: '#00ff9d', fontWeight: '600', marginBottom: '1rem', maxWidth: '500px', margin: '0 auto' }}>
+                            “The future is unwritten. Start tracking today to build tomorrow’s progress!”
+                        </h3>
+                        <p style={{ color: '#8b949e' }}>Your daily logs for {selectedDate} will appear here once the day arrives.</p>
+                    </div>
                 ) : (
                     <div className="timeline">
                         {hours.map(h => (

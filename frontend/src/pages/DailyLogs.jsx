@@ -100,7 +100,10 @@ const DailyLogs = () => {
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p style={{ color: '#484f58', fontSize: '0.9rem', fontStyle: 'italic' }}>No activity recorded for this section.</p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8b949e', fontSize: '0.95rem' }}>
+                                        <span style={{ opacity: 0.6 }}>○</span>
+                                        <span>No activity recorded for this section.</span>
+                                    </div>
                                 )}
                             </div>
                         ))}
@@ -116,7 +119,10 @@ const DailyLogs = () => {
                                     <span style={{ color: '#298d46', fontWeight: 'bold' }}>🧠 GFG</span>
                                 )}
                                 {!currentLog?.completedTasks?.leetCode?.done && !currentLog?.completedTasks?.gfg?.done && (
-                                    <span style={{ color: '#484f58', fontSize: '0.9rem', fontStyle: 'italic' }}>No coding challenges completed.</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8b949e', fontSize: '0.95rem' }}>
+                                        <span style={{ opacity: 0.6 }}>○</span>
+                                        <span>No coding challenges completed.</span>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -127,7 +133,10 @@ const DailyLogs = () => {
                             {currentLog?.notes ? (
                                 <div style={{ color: '#c9d1d9', whiteSpace: 'pre-wrap' }}>{currentLog.notes}</div>
                             ) : (
-                                <p style={{ color: '#484f58', fontSize: '0.9rem', fontStyle: 'italic' }}>No notes for this day.</p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8b949e', fontSize: '0.95rem' }}>
+                                    <span style={{ opacity: 0.6 }}>○</span>
+                                    <span>No notes for this day.</span>
+                                </div>
                             )}
                         </div>
                     </div>

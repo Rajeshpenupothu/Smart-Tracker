@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_URL from '../api';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 const Favorites = () => {
     const navigate = useNavigate();
     const [specialDays, setSpecialDays] = useState([]);
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
+    // For the calendar selected date
+    const [viewDate, setViewDate] = useState(new Date(selectedYear, selectedMonth, 1));
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -44,21 +50,41 @@ const Favorites = () => {
         <div className="container">
             <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#00ff9d' }}>Favorites</h1>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                    style={{ padding: '8px 12px', background: '#161b22', color: 'white', border: '1px solid #30363d', borderRadius: '4px' }}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem', gap: '1rem' }}>
+                <button
+                    className="premium-toggle-btn"
+                    onClick={() => setIsCalendarVisible(!isCalendarVisible)}
                 >
-                    {months.map((m, i) => <option key={i} value={i}>{m}</option>)}
-                </select>
-                <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                    style={{ padding: '8px 12px', background: '#161b22', color: 'white', border: '1px solid #30363d', borderRadius: '4px' }}
-                >
-                    {years.map(y => <option key={y} value={y}>{y}</option>)}
-                </select>
+                    <span>📅 Viewing: </span>
+                    <span style={{ color: '#00ff9d', fontWeight: 'bold', marginLeft: '5px' }}>
+                        {months[selectedMonth]} {selectedYear}
+                    </span>
+                    <span style={{
+                        marginLeft: '10px',
+                        transition: 'transform 0.3s',
+                        display: 'inline-block',
+                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}>▼</span>
+                </button>
+
+                {isCalendarVisible && (
+                    <div className="premium-calendar-container">
+                        <Calendar
+                            className="dark-theme-calendar"
+                            view="month"
+                            onClickMonth={(date) => {
+                                setSelectedMonth(date.getMonth());
+                                setSelectedYear(date.getFullYear());
+                                setViewDate(date);
+                                setIsCalendarVisible(false);
+                            }}
+                            onActiveStartDateChange={({ activeStartDate }) => setViewDate(activeStartDate)}
+                            activeStartDate={viewDate}
+                            value={new Date(selectedYear, selectedMonth, 1)}
+                            showNeighboringMonth={false}
+                        />
+                    </div>
+                )}
             </div>
 
             {filtered.length === 0 ? (
