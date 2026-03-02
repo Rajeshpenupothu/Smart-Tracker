@@ -44,12 +44,13 @@ const DailyLogs = () => {
                     onClick={() => setIsCalendarVisible(!isCalendarVisible)}
                 >
                     <span>📅 Choose date: </span>
-                    <span style={{ color: '#00ff9d', fontWeight: 'bold', marginLeft: '5px' }}>{selectedDate}</span>
+                    <strong>{selectedDate}</strong>
                     <span style={{
-                        marginLeft: '10px',
+                        marginLeft: '5px',
                         transition: 'transform 0.3s',
                         display: 'inline-block',
-                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
+                        opacity: 0.5
                     }}>▼</span>
                 </button>
 
@@ -57,6 +58,12 @@ const DailyLogs = () => {
                     <div className="premium-calendar-container">
                         <Calendar
                             className="dark-theme-calendar"
+                            maxDate={new Date()}
+                            onClickDay={(date) => {
+                                if (date > new Date()) {
+                                    alert("🌱 The future is unwritten. Start tracking today to build tomorrow’s progress!");
+                                }
+                            }}
                             onChange={(date) => {
                                 handleDateChange(date);
                                 setIsCalendarVisible(false);
@@ -108,9 +115,9 @@ const DailyLogs = () => {
                             </div>
                         ))}
 
-                        {/* Special Checkboxes */}
+                        {/* Coding Challenges */}
                         <div className="section-card" style={{ marginBottom: 0 }}>
-                            <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>✅ Completed Today</h3>
+                            <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>🧠 Coding Challenges</h3>
                             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                                 {currentLog?.completedTasks?.leetCode?.done && (
                                     <span style={{ color: '#ffa116', fontWeight: 'bold' }}>🧠 LeetCode</span>

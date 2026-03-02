@@ -56,14 +56,13 @@ const Favorites = () => {
                     onClick={() => setIsCalendarVisible(!isCalendarVisible)}
                 >
                     <span>📅 Viewing: </span>
-                    <span style={{ color: '#00ff9d', fontWeight: 'bold', marginLeft: '5px' }}>
-                        {months[selectedMonth]} {selectedYear}
-                    </span>
+                    <strong>{months[selectedMonth]} {selectedYear}</strong>
                     <span style={{
-                        marginLeft: '10px',
+                        marginLeft: '5px',
                         transition: 'transform 0.3s',
                         display: 'inline-block',
-                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
+                        opacity: 0.5
                     }}>▼</span>
                 </button>
 
@@ -72,7 +71,12 @@ const Favorites = () => {
                         <Calendar
                             className="dark-theme-calendar"
                             view="month"
+                            maxDate={new Date()}
                             onClickMonth={(date) => {
+                                if (date > new Date()) {
+                                    alert("🌱 The future is unwritten. Start tracking today to build tomorrow’s progress!");
+                                    return;
+                                }
                                 setSelectedMonth(date.getMonth());
                                 setSelectedYear(date.getFullYear());
                                 setViewDate(date);
