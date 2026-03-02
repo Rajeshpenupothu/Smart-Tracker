@@ -616,6 +616,64 @@ input[type="checkbox"] {
   }
 }
 
+/* =====================
+   PREMIUM CALENDAR & TOGGLE
+   ===================== */
+.premium-toggle-btn {
+  background: #161b22;
+  /* Consistent dark background */
+  border: 1px solid #30363d;
+  color: #f0f6fc;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: fit-content;
+}
+
+.premium-toggle-btn:hover {
+  border-color: var(--accent-color);
+  background: #1c2128;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 255, 157, 0.1);
+}
+
+.premium-toggle-btn strong {
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+.premium-calendar-container {
+  background: #0d1117;
+  /* Reverted to black theme */
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  margin-top: 10px;
+  z-index: 1000;
+  position: absolute;
+  animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .dark-theme-calendar .react-calendar__tile--active:enabled:hover,
 .dark-theme-calendar .react-calendar__tile--active:enabled:focus {
   background: var(--button-hover) !important;
