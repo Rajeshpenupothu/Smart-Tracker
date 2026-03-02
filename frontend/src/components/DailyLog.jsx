@@ -300,7 +300,7 @@ const DailyLog = () => {
     const user = getUser();
 
     const savedSelectedDate = localStorage.getItem('selectedDate') || todayStr;
-    const [selectedDate, setSelectedDate] = useState(savedSelectedDate);
+    const [selectedDate, setSelectedDate] = useState(todayStr); // Always default to today on fresh load
     const [task, setTask] = useState({
         date: todayStr,
         leetCodeCompleted: false,
@@ -375,6 +375,12 @@ const DailyLog = () => {
     };
 
     const handleSave = async (silent = false) => {
+        // Prevent saving if the task date doesn't match the selected date (race condition)
+        if (task.date !== selectedDate) {
+            console.warn("[Save Blocked] Task date does not match selected date.");
+            return;
+        }
+
         if (silent === true) setSaveStatus('saving');
         try {
             // Merge hourlyLog into completedTasks before saving

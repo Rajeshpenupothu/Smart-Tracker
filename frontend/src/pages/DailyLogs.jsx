@@ -5,7 +5,8 @@ import 'react-calendar/dist/Calendar.css';
 import API_URL from '../api';
 
 const DailyLogs = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const [selectedDate, setSelectedDate] = useState(todayStr);
     const [currentLog, setCurrentLog] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 

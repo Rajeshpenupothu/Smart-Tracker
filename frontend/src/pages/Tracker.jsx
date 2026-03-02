@@ -5,7 +5,8 @@ import 'react-calendar/dist/Calendar.css';
 import API_URL from '../api';
 
 const Tracker = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const [selectedDate, setSelectedDate] = useState(todayStr);
     const [hourlyLog, setHourlyLog] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
