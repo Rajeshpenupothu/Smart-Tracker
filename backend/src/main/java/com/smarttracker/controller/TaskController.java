@@ -30,11 +30,17 @@ public class TaskController {
         String normalizedEmail = (userEmail != null) ? userEmail.toLowerCase() : null;
         LocalDate localDate = LocalDate.parse(date);
         DailyTask task = repository.findByDateAndUserEmail(localDate, normalizedEmail).orElse(new DailyTask());
-        
+        return mapTaskToResponse(task);
+    }
+
+    private Map<String, Object> mapTaskToResponse(DailyTask task) {
         Map<String, Object> response = new HashMap<>();
         response.put("id", task.getId());
         response.put("date", task.getDate());
         response.put("notes", task.getNotes());
+        response.put("userEmail", task.getUserEmail());
+        
+        // Initial defaults for helper fields
         response.put("isFavorite", false);
         response.put("favoriteTitle", "");
         
@@ -53,44 +59,52 @@ public class TaskController {
                     Object val = completed.get(dbKey);
                     if (val instanceof Map) {
                         Map<String, Object> categoryData = (Map<String, Object>) val;
-                        // Handle transition from single "task" to "tasks" list
                         if (categoryData.containsKey("tasks")) {
                             response.put(feKey + "List", categoryData.get("tasks"));
                         } else if (categoryData.containsKey("task")) {
-                            // Convert old single task to a list for the frontend
                             Map<String, Object> singleTask = new HashMap<>();
                             singleTask.put("title", categoryData.get("task"));
                             singleTask.put("done", categoryData.getOrDefault("done", false));
-                            java.util.List<Map<String, Object>> list = java.util.List.of(singleTask);
-                            response.put(feKey + "List", list);
+                            response.put(feKey + "List", java.util.List.of(singleTask));
                         }
                     }
+                } else {
+                    response.put(feKey + "List", java.util.Collections.emptyList());
                 }
             }
             
-            // Handle leetCode/gfg (special cases as they are just checkboxes)
             if (completed.containsKey("leetCode")) {
                 Map<String, Object> info = (Map<String, Object>) completed.get("leetCode");
                 response.put("leetCodeCompleted", info.getOrDefault("done", false));
+            } else {
+                response.put("leetCodeCompleted", false);
             }
+            
             if (completed.containsKey("gfg")) {
                 Map<String, Object> info = (Map<String, Object>) completed.get("gfg");
                 response.put("gfgCompleted", info.getOrDefault("done", false));
+            } else {
+                response.put("gfgCompleted", false);
             }
 
-            // Favorites data
             response.put("isFavorite", completed.getOrDefault("isFavorite", false));
             response.put("favoriteTitle", completed.getOrDefault("favoriteTitle", ""));
-
-            // The hourlyLog is already inside the completedTasks map in the database
             response.put("completedTasks", completed);
+        } else {
+            // Set defaults if completedTasks is null
+            for (String feKey : FE_TO_DB_KEYS.keySet()) {
+                response.put(feKey + "List", java.util.Collections.emptyList());
+            }
+            response.put("leetCodeCompleted", false);
+            response.put("gfgCompleted", false);
+            response.put("completedTasks", new HashMap<>());
         }
         return response;
     }
 
     @PostMapping
     @Transactional
-    public DailyTask saveOrUpdateTask(@RequestBody Map<String, Object> payload) {
+    public Map<String, Object> saveOrUpdateTask(@RequestBody Map<String, Object> payload) {
         String dateStr = (String) payload.get("date");
         String rawUserEmail = (String) payload.get("userEmail");
         String userEmail = (rawUserEmail != null) ? rawUserEmail.toLowerCase() : "anonymous";
@@ -98,52 +112,37 @@ public class TaskController {
         LocalDate date = (dateStr != null) ? LocalDate.parse(dateStr) : LocalDate.now();
         System.out.println("[SaveTask] Saving task for date: " + date + ", user: " + userEmail);
         
-        // Find existing task for this date and user (normalized)
         DailyTask task = repository.findByDateAndUserEmail(date, userEmail).orElseGet(() -> {
-            System.out.println("[SaveTask] No existing task found, creating new one.");
             DailyTask newTask = new DailyTask();
             newTask.setDate(date);
             newTask.setUserEmail(userEmail);
             return newTask;
         });
         
-        if (task.getId() != null) {
-            System.out.println("[SaveTask] Found existing task with ID: " + task.getId());
-        }
-
         task.setNotes((String) payload.get("notes"));
-
         Map<String, Object> nestedTasks = new HashMap<>();
         
         for (Map.Entry<String, String> entry : FE_TO_DB_KEYS.entrySet()) {
             String feKey = entry.getKey();
             String dbKey = entry.getValue();
-            
-            Map<String, Object> categoryData = new HashMap<>();
             Object listObj = payload.get(feKey + "List");
-            if (listObj instanceof java.util.List) {
-                categoryData.put("tasks", listObj);
-            } else {
-                categoryData.put("tasks", java.util.Collections.emptyList());
-            }
+            Map<String, Object> categoryData = new HashMap<>();
+            categoryData.put("tasks", (listObj instanceof java.util.List) ? listObj : java.util.Collections.emptyList());
             nestedTasks.put(dbKey, categoryData);
         }
         
-        // Handle leetCode/gfg
         nestedTasks.put("leetCode", Map.of("done", payload.getOrDefault("leetCodeCompleted", false)));
         nestedTasks.put("gfg", Map.of("done", payload.getOrDefault("gfgCompleted", false)));
-        
-        // Handle Favorites
         nestedTasks.put("isFavorite", payload.getOrDefault("isFavorite", false));
         nestedTasks.put("favoriteTitle", payload.getOrDefault("favoriteTitle", ""));
         
-        // Handle hourlyLog
         if (payload.containsKey("hourlyLog")) {
             nestedTasks.put("hourlyLog", payload.get("hourlyLog"));
         }
 
         task.setCompletedTasks(nestedTasks);
-        return repository.save(task);
+        DailyTask saved = repository.save(task);
+        return mapTaskToResponse(saved);
     }
     @GetMapping
     public java.util.List<Map<String, Object>> getAllTasks(@RequestParam String userEmail) {

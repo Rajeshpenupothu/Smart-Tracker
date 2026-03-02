@@ -66,15 +66,15 @@ const DailyLogs = () => {
                     <div className="log-details" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         {/* Task Lists */}
                         {[
-                            { list: 'javaPracticeList', title: '☕ Java Practice', emoji: '✅' },
-                            { list: 'bookReadingList', title: '📚 Book Reading', emoji: '📖' },
-                            { list: 'newSkillList', title: '🚀 New Skill Learning', emoji: '⭐' }
+                            { list: 'java', title: '☕ Java Practice', emoji: '✅' },
+                            { list: 'book reading', title: '📚 Book Reading', emoji: '📖' },
+                            { list: 'new skill', title: '🚀 New Skill Learning', emoji: '⭐' }
                         ].map(section => (
-                            currentLog.completedTasks?.[section.list]?.length > 0 && (
+                            currentLog.completedTasks?.[section.list]?.tasks?.length > 0 && (
                                 <div key={section.list} className="section-card" style={{ marginBottom: 0 }}>
                                     <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>{section.title}</h3>
                                     <ul style={{ listStyle: 'none', padding: 0 }}>
-                                        {currentLog.completedTasks[section.list].map((t, i) => (
+                                        {currentLog.completedTasks[section.list].tasks.map((t, i) => (
                                             <li key={i} style={{ padding: '8px 0', borderBottom: '1px solid #30363d', color: '#c9d1d9' }}>
                                                 {t.done ? section.emoji : '⏳'} {t.title}
                                             </li>
@@ -91,24 +91,6 @@ const DailyLogs = () => {
                                 <div style={{ display: 'flex', gap: '20px' }}>
                                     {currentLog.completedTasks?.leetCode?.done && <span style={{ color: '#ffa116' }}>✅ LeetCode</span>}
                                     {currentLog.completedTasks?.gfg?.done && <span style={{ color: '#298d46' }}>✅ GFG</span>}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Hourly Track */}
-                        {Object.keys(currentLog.completedTasks?.hourlyLog || {}).some(h => currentLog.completedTasks.hourlyLog[h]) && (
-                            <div className="section-card" style={{ marginBottom: 0 }}>
-                                <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>🕒 24-Hour Track</h3>
-                                <div className="hourly-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
-                                    {Object.entries(currentLog.completedTasks.hourlyLog)
-                                        .filter(([_, val]) => val)
-                                        .sort(([a, _], [b, __]) => parseInt(a) - parseInt(b))
-                                        .map(([h, val]) => (
-                                            <div key={h} style={{ backgroundColor: '#161b22', padding: '8px 12px', borderRadius: '6px', border: '1px solid #30363d', fontSize: '0.9rem' }}>
-                                                <span style={{ color: '#8b949e', marginRight: '8px' }}>{parseInt(h) === 0 ? "12 AM" : parseInt(h) < 12 ? `${h} AM` : parseInt(h) === 12 ? "12 PM" : `${h - 12} PM`}:</span>
-                                                <span style={{ color: '#c9d1d9' }}>{val}</span>
-                                            </div>
-                                        ))}
                                 </div>
                             </div>
                         )}

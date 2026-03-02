@@ -37,15 +37,20 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.nav-links a {
+.nav-links a,
+.nav-links .dropbtn {
   color: #8b949e;
   text-decoration: none;
   margin-left: 1.5rem;
   font-weight: 500;
-  transition: color 0.3s;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links .dropbtn:hover {
   color: var(--accent-color);
 }
 
@@ -617,8 +622,26 @@ input[type="checkbox"] {
     padding: 0.6rem 0.75rem;
   }
 
-  .nav-links a {
-    font-size: 0.82rem;
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-links a,
+  .nav-links .dropbtn {
+    font-size: 0.85rem;
+    margin-left: 0;
+  }
+
+  .nav-text {
+    display: none;
+    /* Hide text on very small screens, show only icons if needed */
+  }
+
+  /* Show text on slightly larger mobile screens */
+  @media (min-width: 400px) {
+    .nav-text {
+      display: inline;
+    }
   }
 
   .section-header {

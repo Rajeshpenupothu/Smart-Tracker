@@ -193,7 +193,10 @@ const CodingChallengesSection = ({ task, setTask, onSave, isReadOnly }) => {
                                 type="checkbox"
                                 checked={task.leetCodeCompleted || false}
                                 disabled={isReadOnly}
-                                onChange={(e) => setTask({ ...task, leetCodeCompleted: e.target.checked })}
+                                onChange={(e) => {
+                                    setTask({ ...task, leetCodeCompleted: e.target.checked });
+                                    if (!isReadOnly && onSave) setTimeout(() => onSave(true), 0);
+                                }}
                             />
                         </div>
                         <button className="btn btn-outline" style={{ fontSize: '0.8rem', borderColor: '#ffa116', color: '#ffa116' }} onClick={() => window.open('https://leetcode.com/problemset/', '_blank')}>LeetCode</button>
@@ -204,7 +207,10 @@ const CodingChallengesSection = ({ task, setTask, onSave, isReadOnly }) => {
                                 type="checkbox"
                                 checked={task.gfgCompleted || false}
                                 disabled={isReadOnly}
-                                onChange={(e) => setTask({ ...task, gfgCompleted: e.target.checked })}
+                                onChange={(e) => {
+                                    setTask({ ...task, gfgCompleted: e.target.checked });
+                                    if (!isReadOnly && onSave) setTimeout(() => onSave(true), 0);
+                                }}
                             />
                         </div>
                         <button className="btn btn-outline" style={{ fontSize: '0.8rem', borderColor: '#298d46', color: '#298d46' }} onClick={() => window.open('https://www.geeksforgeeks.org/problem-of-the-day', '_blank')}>GFG</button>
