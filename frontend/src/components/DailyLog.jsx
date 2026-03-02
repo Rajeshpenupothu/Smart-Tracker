@@ -156,11 +156,6 @@ const NotesSection = ({ task, setTask, onSave, isReadOnly }) => {
     return (
         <div
             className="section-card"
-            onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget)) {
-                    if (!isReadOnly && onSave) onSave(true);
-                }
-            }}
         >
             <div
                 className="section-header"
@@ -192,9 +187,7 @@ const NotesSection = ({ task, setTask, onSave, isReadOnly }) => {
                                 checked={task.leetCodeCompleted || false}
                                 disabled={isReadOnly}
                                 onChange={(e) => {
-                                    const updatedTask = { ...task, leetCodeCompleted: e.target.checked };
-                                    setTask(updatedTask);
-                                    if (!isReadOnly && onSave) onSave(true, updatedTask);
+                                    setTask({ ...task, leetCodeCompleted: e.target.checked });
                                 }}
                             />
                         </div>
@@ -207,9 +200,7 @@ const NotesSection = ({ task, setTask, onSave, isReadOnly }) => {
                                 checked={task.gfgCompleted || false}
                                 disabled={isReadOnly}
                                 onChange={(e) => {
-                                    const updatedTask = { ...task, gfgCompleted: e.target.checked };
-                                    setTask(updatedTask);
-                                    if (!isReadOnly && onSave) onSave(true, updatedTask);
+                                    setTask({ ...task, gfgCompleted: e.target.checked });
                                 }}
                             />
                         </div>
@@ -222,59 +213,6 @@ const NotesSection = ({ task, setTask, onSave, isReadOnly }) => {
 };
 
 
-const BookReadingSection = ({ task, setTask, onSave, isReadOnly }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    return (
-        <div
-            className="section-card"
-            onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget)) {
-                    if (!isReadOnly && onSave) onSave(true);
-                }
-            }}
-        >
-            <div
-                className="section-header"
-                style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                onClick={() => setIsExpanded(!isExpanded)}
-            >
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    📚 Book Reading
-                </div>
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: '#8b949e',
-                    transition: 'transform 0.2s',
-                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path fillRule="evenodd" d="M12.78 6.22a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06 0L3.22 7.28a.75.75 0 011.06-1.06L8 9.94l3.72-3.72a.75.75 0 011.06 0z"></path>
-                    </svg>
-                </div>
-            </div>
-
-            {isExpanded && (
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '1rem' }}>
-                    <div className="checkbox-container" style={{ margin: 0 }}>
-                        <input
-                            type="checkbox"
-                            checked={task.bookReadingCompleted || false}
-                            disabled={isReadOnly}
-                            onChange={(e) => {
-                                const updatedTask = { ...task, bookReadingCompleted: e.target.checked };
-                                setTask(updatedTask);
-                                if (!isReadOnly && onSave) onSave(true, updatedTask);
-                            }}
-                        />
-                    </div>
-                    <span style={{ color: '#c9d1d9' }}>I have read my book today</span>
-                </div>
-            )}
-        </div>
-    );
-};
 
 const HourlyTrackSection = ({ task, setTask, isReadOnly, onSave }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -366,9 +304,7 @@ const DailyLog = () => {
         date: todayStr,
         leetCodeCompleted: false,
         gfgCompleted: false,
-        bookReadingCompleted: false,
         javaPracticeList: [],
-        bookReadingList: [],
         newSkillList: [],
         notes: '',
         hourlyLog: {}
@@ -381,7 +317,6 @@ const DailyLog = () => {
 
     const isReadOnly = selectedDate !== todayStr;
     const hasProgress = task.javaPracticeList?.length > 0 ||
-        task.bookReadingList?.length > 0 ||
         task.newSkillList?.length > 0 ||
         task.notes || task.leetCodeCompleted || task.gfgCompleted ||
         Object.keys(task.hourlyLog || {}).some(k => task.hourlyLog[k]);
@@ -426,9 +361,7 @@ const DailyLog = () => {
             date: date,
             leetCodeCompleted: false,
             gfgCompleted: false,
-            bookReadingCompleted: false,
             javaPracticeList: [],
-            bookReadingList: [],
             newSkillList: [],
             notes: '',
             hourlyLog: {},
@@ -613,12 +546,6 @@ const DailyLog = () => {
                         onSave={handleSave}
                         isReadOnly={isReadOnly}
                     />
-                    <BookReadingSection
-                        task={task}
-                        setTask={setTask}
-                        onSave={handleSave}
-                        isReadOnly={isReadOnly}
-                    />
 
                     <TaskItem
                         title="New Skill Learning"
@@ -630,18 +557,18 @@ const DailyLog = () => {
                         isReadOnly={isReadOnly}
                     />
 
-                    <HourlyTrackSection
-                        task={task}
-                        setTask={setTask}
-                        isReadOnly={isReadOnly}
-                        onSave={handleSave}
-                    />
-
                     <NotesSection
                         task={task}
                         setTask={setTask}
                         onSave={handleSave}
                         isReadOnly={isReadOnly}
+                    />
+
+                    <HourlyTrackSection
+                        task={task}
+                        setTask={setTask}
+                        isReadOnly={isReadOnly}
+                        onSave={handleSave}
                     />
                 </>
             )}

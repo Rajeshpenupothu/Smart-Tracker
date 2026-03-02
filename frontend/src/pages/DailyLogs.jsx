@@ -84,13 +84,11 @@ const DailyLogs = () => {
                         ))}
 
                         {/* Special Checkboxes */}
-                        {(currentLog.completedTasks?.["book reading"]?.done ||
-                            currentLog.completedTasks?.leetCode?.done ||
+                        {(currentLog.completedTasks?.leetCode?.done ||
                             currentLog.completedTasks?.gfg?.done) && (
                                 <div className="section-card" style={{ marginBottom: 0 }}>
                                     <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>✅ Completed Today</h3>
                                     <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                                        {currentLog.completedTasks?.["book reading"]?.done && <span style={{ color: '#c9d1d9' }}>📚 Book Reading</span>}
                                         {currentLog.completedTasks?.leetCode?.done && <span style={{ color: '#ffa116' }}>🧠 LeetCode</span>}
                                         {currentLog.completedTasks?.gfg?.done && <span style={{ color: '#298d46' }}>🧠 GFG</span>}
                                     </div>
