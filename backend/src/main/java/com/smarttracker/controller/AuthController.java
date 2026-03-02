@@ -24,7 +24,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        String normalizedEmail = (user.getEmail() != null) ? user.getEmail().toLowerCase() : null;
+        user.setEmail(normalizedEmail);
+        if (userRepository.findByEmail(normalizedEmail).isPresent()) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -34,7 +36,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
-        Optional<User> userOpt = userRepository.findByEmail(loginRequest.getEmail());
+        String normalizedEmail = (loginRequest.getEmail() != null) ? loginRequest.getEmail().toLowerCase() : null;
+        Optional<User> userOpt = userRepository.findByEmail(normalizedEmail);
         
         if (!userOpt.isPresent()) {
             return ResponseEntity.status(404).body("Email not found");

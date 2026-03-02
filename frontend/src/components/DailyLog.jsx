@@ -392,7 +392,16 @@ const DailyLog = () => {
                     hourlyLog: task.hourlyLog
                 }
             };
-            await axios.post(`${API_URL}/api/tasks`, taskToSave);
+            const res = await axios.post(`${API_URL}/api/tasks`, taskToSave);
+
+            // Sync local state with the saved entity from server
+            if (res.data && res.data.id) {
+                setTask({
+                    ...res.data,
+                    hourlyLog: res.data.completedTasks?.hourlyLog || {}
+                });
+            }
+
             if (silent === true) {
                 setSaveStatus('saved');
                 if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);

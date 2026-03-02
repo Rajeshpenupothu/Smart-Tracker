@@ -93,18 +93,24 @@ public class TaskController {
     public DailyTask saveOrUpdateTask(@RequestBody Map<String, Object> payload) {
         String dateStr = (String) payload.get("date");
         String rawUserEmail = (String) payload.get("userEmail");
-        String userEmail = (rawUserEmail != null) ? rawUserEmail.toLowerCase() : null;
+        String userEmail = (rawUserEmail != null) ? rawUserEmail.toLowerCase() : "anonymous";
         
         LocalDate date = (dateStr != null) ? LocalDate.parse(dateStr) : LocalDate.now();
+        System.out.println("[SaveTask] Saving task for date: " + date + ", user: " + userEmail);
         
         // Find existing task for this date and user (normalized)
         DailyTask task = repository.findByDateAndUserEmail(date, userEmail).orElseGet(() -> {
+            System.out.println("[SaveTask] No existing task found, creating new one.");
             DailyTask newTask = new DailyTask();
             newTask.setDate(date);
             newTask.setUserEmail(userEmail);
             return newTask;
         });
         
+        if (task.getId() != null) {
+            System.out.println("[SaveTask] Found existing task with ID: " + task.getId());
+        }
+
         task.setNotes((String) payload.get("notes"));
 
         Map<String, Object> nestedTasks = new HashMap<>();
