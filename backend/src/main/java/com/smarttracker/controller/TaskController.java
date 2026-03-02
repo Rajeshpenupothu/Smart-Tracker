@@ -73,6 +73,8 @@ public class TaskController {
                 Map<String, Object> info = (Map<String, Object>) completed.get("gfg");
                 response.put("gfgCompleted", info.getOrDefault("done", false));
             }
+            // Include raw completedTasks for other data like hourlyLog
+            response.put("completedTasks", completed);
         }
         return response;
     }
@@ -104,6 +106,11 @@ public class TaskController {
         // Handle leetCode/gfg
         nestedTasks.put("leetCode", Map.of("done", payload.getOrDefault("leetCodeCompleted", false)));
         nestedTasks.put("gfg", Map.of("done", payload.getOrDefault("gfgCompleted", false)));
+        
+        // Handle hourlyLog
+        if (payload.containsKey("hourlyLog")) {
+            nestedTasks.put("hourlyLog", payload.get("hourlyLog"));
+        }
 
         task.setCompletedTasks(nestedTasks);
         return repository.save(task);
