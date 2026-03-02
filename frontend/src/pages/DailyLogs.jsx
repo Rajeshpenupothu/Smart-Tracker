@@ -45,13 +45,25 @@ const DailyLogs = () => {
                 >
                     <span>📅 Choose date: </span>
                     <strong>{selectedDate}</strong>
-                    <span style={{
-                        marginLeft: '5px',
-                        transition: 'transform 0.3s',
-                        display: 'inline-block',
-                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
-                        opacity: 0.5
-                    }}>▼</span>
+                    <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{
+                            marginLeft: '8px',
+                            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
+                            opacity: 0.8,
+                            color: isCalendarVisible ? '#00ff9d' : 'inherit'
+                        }}
+                    >
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
                 </button>
 
                 {isCalendarVisible && (
