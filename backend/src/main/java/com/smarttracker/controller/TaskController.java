@@ -27,8 +27,9 @@ public class TaskController {
 
     @GetMapping("/{date}")
     public Map<String, Object> getTaskByDate(@PathVariable String date, @RequestParam String userEmail) {
+        String normalizedEmail = (userEmail != null) ? userEmail.toLowerCase() : null;
         LocalDate localDate = LocalDate.parse(date);
-        DailyTask task = repository.findByDateAndUserEmail(localDate, userEmail).orElse(new DailyTask());
+        DailyTask task = repository.findByDateAndUserEmail(localDate, normalizedEmail).orElse(new DailyTask());
         
         Map<String, Object> response = new HashMap<>();
         response.put("id", task.getId());
@@ -140,7 +141,8 @@ public class TaskController {
     }
     @GetMapping
     public java.util.List<Map<String, Object>> getAllTasks(@RequestParam String userEmail) {
-        return repository.findAllByUserEmailOrderByDateDesc(userEmail).stream().map(task -> {
+        String normalizedEmail = (userEmail != null) ? userEmail.toLowerCase() : null;
+        return repository.findAllByUserEmailOrderByDateDesc(normalizedEmail).stream().map(task -> {
             Map<String, Object> summary = new HashMap<>();
             summary.put("id", task.getId());
             summary.put("date", task.getDate());
@@ -201,7 +203,8 @@ public class TaskController {
 
     @GetMapping("/favorites")
     public java.util.List<Map<String, Object>> getFavorites(@RequestParam String userEmail) {
-        return repository.findAllByUserEmailOrderByDateDesc(userEmail).stream()
+        String normalizedEmail = (userEmail != null) ? userEmail.toLowerCase() : null;
+        return repository.findAllByUserEmailOrderByDateDesc(normalizedEmail).stream()
             .filter(task -> {
                 Map<String, Object> completed = task.getCompletedTasks();
                 return completed != null && Boolean.TRUE.equals(completed.get("isFavorite"));

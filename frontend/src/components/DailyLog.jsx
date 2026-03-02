@@ -402,10 +402,12 @@ const DailyLog = () => {
             }
         } catch (error) {
             console.error("Error saving progress:", error);
+            const status = error.response?.status;
+            const message = error.response?.data?.message || error.message;
             if (silent === true) {
                 setSaveStatus('error');
             } else {
-                alert("Error saving progress.");
+                alert(`Error saving progress: ${status || 'Network Error'} - ${message}`);
             }
         }
     };
