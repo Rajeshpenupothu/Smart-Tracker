@@ -9,6 +9,7 @@ const DailyLogs = () => {
     const [selectedDate, setSelectedDate] = useState(todayStr);
     const [currentLog, setCurrentLog] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
     useEffect(() => {
         fetchLogForDate(selectedDate);
@@ -37,14 +38,33 @@ const DailyLogs = () => {
         <div className="container">
             <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#00ff9d' }}>Daily Logs</h1>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3rem', gap: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ padding: '20px', backgroundColor: '#161b22', borderRadius: '12px', border: '1px solid #30363d' }}>
-                    <Calendar
-                        className="dark-theme-calendar"
-                        onChange={handleDateChange}
-                        value={new Date(selectedDate)}
-                    />
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem', gap: '1rem' }}>
+                <button
+                    className="premium-toggle-btn"
+                    onClick={() => setIsCalendarVisible(!isCalendarVisible)}
+                >
+                    <span>📅 Choose date: </span>
+                    <span style={{ color: '#00ff9d', fontWeight: 'bold', marginLeft: '5px' }}>{selectedDate}</span>
+                    <span style={{
+                        marginLeft: '10px',
+                        transition: 'transform 0.3s',
+                        display: 'inline-block',
+                        transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}>▼</span>
+                </button>
+
+                {isCalendarVisible && (
+                    <div className="premium-calendar-container">
+                        <Calendar
+                            className="dark-theme-calendar"
+                            onChange={(date) => {
+                                handleDateChange(date);
+                                setIsCalendarVisible(false);
+                            }}
+                            value={new Date(selectedDate)}
+                        />
+                    </div>
+                )}
             </div>
 
             <div style={{ animation: 'fadeIn 0.3s ease-in' }}>
@@ -56,11 +76,11 @@ const DailyLogs = () => {
 
                 {isLoading ? (
                     <div style={{ textAlign: 'center', color: '#8b949e' }}>Loading logs...</div>
-                ) : !currentLog ? (
-                    <div className="empty-state" style={{ textAlign: 'center', padding: '3rem', backgroundColor: '#161b22', borderRadius: '8px', border: '1px dashed #30363d' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
-                        <h3 style={{ color: '#8b949e', fontWeight: '400' }}>No logs available for this date</h3>
-                        <p style={{ color: '#484f58', fontSize: '0.9rem' }}>Try selecting another date or log your progress for today!</p>
+                ) : selectedDate > todayStr ? (
+                    <div className="future-state">
+                        <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🚀</div>
+                        <h2 style={{ color: '#00ff9d', fontWeight: '600', marginBottom: '0.5rem' }}>You are in the present, not the future!</h2>
+                        <p style={{ color: '#8b949e' }}>Focus on what you can achieve today.</p>
                     </div>
                 ) : (
                     <div className="log-details" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -69,9 +89,9 @@ const DailyLogs = () => {
                             { list: 'java', title: '☕ Java Practice', emoji: '✅' },
                             { list: 'new skill', title: '🚀 New Skill Learning', emoji: '⭐' }
                         ].map(section => (
-                            currentLog.completedTasks?.[section.list]?.tasks?.length > 0 && (
-                                <div key={section.list} className="section-card" style={{ marginBottom: 0 }}>
-                                    <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>{section.title}</h3>
+                            <div key={section.list} className="section-card" style={{ marginBottom: 0 }}>
+                                <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>{section.title}</h3>
+                                {currentLog?.completedTasks?.[section.list]?.tasks?.length > 0 ? (
                                     <ul style={{ listStyle: 'none', padding: 0 }}>
                                         {currentLog.completedTasks[section.list].tasks.map((t, i) => (
                                             <li key={i} style={{ padding: '8px 0', borderBottom: '1px solid #30363d', color: '#c9d1d9' }}>
@@ -79,28 +99,37 @@ const DailyLogs = () => {
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
-                            )
+                                ) : (
+                                    <p style={{ color: '#484f58', fontSize: '0.9rem', fontStyle: 'italic' }}>No activity recorded for this section.</p>
+                                )}
+                            </div>
                         ))}
 
                         {/* Special Checkboxes */}
-                        {(currentLog.completedTasks?.leetCode?.done ||
-                            currentLog.completedTasks?.gfg?.done) && (
-                                <div className="section-card" style={{ marginBottom: 0 }}>
-                                    <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>✅ Completed Today</h3>
-                                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                                        {currentLog.completedTasks?.leetCode?.done && <span style={{ color: '#ffa116' }}>🧠 LeetCode</span>}
-                                        {currentLog.completedTasks?.gfg?.done && <span style={{ color: '#298d46' }}>🧠 GFG</span>}
-                                    </div>
-                                </div>
-                            )}
-
-                        {currentLog.notes && (
-                            <div className="section-card" style={{ marginBottom: 0 }}>
-                                <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>📝 Notes</h3>
-                                <div style={{ color: '#c9d1d9', whiteSpace: 'pre-wrap' }}>{currentLog.notes}</div>
+                        <div className="section-card" style={{ marginBottom: 0 }}>
+                            <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>✅ Completed Today</h3>
+                            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                                {currentLog?.completedTasks?.leetCode?.done && (
+                                    <span style={{ color: '#ffa116', fontWeight: 'bold' }}>🧠 LeetCode</span>
+                                )}
+                                {currentLog?.completedTasks?.gfg?.done && (
+                                    <span style={{ color: '#298d46', fontWeight: 'bold' }}>🧠 GFG</span>
+                                )}
+                                {!currentLog?.completedTasks?.leetCode?.done && !currentLog?.completedTasks?.gfg?.done && (
+                                    <span style={{ color: '#484f58', fontSize: '0.9rem', fontStyle: 'italic' }}>No coding challenges completed.</span>
+                                )}
                             </div>
-                        )}
+                        </div>
+
+                        {/* Notes */}
+                        <div className="section-card" style={{ marginBottom: 0 }}>
+                            <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>📝 Notes</h3>
+                            {currentLog?.notes ? (
+                                <div style={{ color: '#c9d1d9', whiteSpace: 'pre-wrap' }}>{currentLog.notes}</div>
+                            ) : (
+                                <p style={{ color: '#484f58', fontSize: '0.9rem', fontStyle: 'italic' }}>No notes for this day.</p>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
