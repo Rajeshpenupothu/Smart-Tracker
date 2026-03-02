@@ -87,6 +87,18 @@ public class TaskController {
                 response.put("gfgCompleted", false);
             }
 
+            if (completed.containsKey("book reading")) {
+                Object val = completed.get("book reading");
+                if (val instanceof Map) {
+                    Map<String, Object> info = (Map<String, Object>) val;
+                    response.put("bookReadingCompleted", info.getOrDefault("done", false));
+                } else {
+                    response.put("bookReadingCompleted", false);
+                }
+            } else {
+                response.put("bookReadingCompleted", false);
+            }
+
             response.put("isFavorite", completed.getOrDefault("isFavorite", false));
             response.put("favoriteTitle", completed.getOrDefault("favoriteTitle", ""));
             response.put("completedTasks", completed);
@@ -97,6 +109,7 @@ public class TaskController {
             }
             response.put("leetCodeCompleted", false);
             response.put("gfgCompleted", false);
+            response.put("bookReadingCompleted", false);
             response.put("completedTasks", new HashMap<>());
         }
         return response;
@@ -133,6 +146,8 @@ public class TaskController {
         
         nestedTasks.put("leetCode", Map.of("done", payload.getOrDefault("leetCodeCompleted", false)));
         nestedTasks.put("gfg", Map.of("done", payload.getOrDefault("gfgCompleted", false)));
+        nestedTasks.put("book reading", Map.of("done", payload.getOrDefault("bookReadingCompleted", false)));
+        
         nestedTasks.put("isFavorite", payload.getOrDefault("isFavorite", false));
         nestedTasks.put("favoriteTitle", payload.getOrDefault("favoriteTitle", ""));
         

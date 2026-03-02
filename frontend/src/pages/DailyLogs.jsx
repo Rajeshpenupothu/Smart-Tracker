@@ -67,7 +67,6 @@ const DailyLogs = () => {
                         {/* Task Lists */}
                         {[
                             { list: 'java', title: '☕ Java Practice', emoji: '✅' },
-                            { list: 'book reading', title: '📚 Book Reading', emoji: '📖' },
                             { list: 'new skill', title: '🚀 New Skill Learning', emoji: '⭐' }
                         ].map(section => (
                             currentLog.completedTasks?.[section.list]?.tasks?.length > 0 && (
@@ -84,16 +83,19 @@ const DailyLogs = () => {
                             )
                         ))}
 
-                        {/* Coding Challenges */}
-                        {(currentLog.completedTasks?.leetCode?.done || currentLog.completedTasks?.gfg?.done) && (
-                            <div className="section-card" style={{ marginBottom: 0 }}>
-                                <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>🧠 Coding Challenges</h3>
-                                <div style={{ display: 'flex', gap: '20px' }}>
-                                    {currentLog.completedTasks?.leetCode?.done && <span style={{ color: '#ffa116' }}>✅ LeetCode</span>}
-                                    {currentLog.completedTasks?.gfg?.done && <span style={{ color: '#298d46' }}>✅ GFG</span>}
+                        {/* Special Checkboxes */}
+                        {(currentLog.completedTasks?.["book reading"]?.done ||
+                            currentLog.completedTasks?.leetCode?.done ||
+                            currentLog.completedTasks?.gfg?.done) && (
+                                <div className="section-card" style={{ marginBottom: 0 }}>
+                                    <h3 style={{ color: '#00ff9d', marginBottom: '1rem' }}>✅ Completed Today</h3>
+                                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                                        {currentLog.completedTasks?.["book reading"]?.done && <span style={{ color: '#c9d1d9' }}>📚 Book Reading</span>}
+                                        {currentLog.completedTasks?.leetCode?.done && <span style={{ color: '#ffa116' }}>🧠 LeetCode</span>}
+                                        {currentLog.completedTasks?.gfg?.done && <span style={{ color: '#298d46' }}>🧠 GFG</span>}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
                         {currentLog.notes && (
                             <div className="section-card" style={{ marginBottom: 0 }}>
