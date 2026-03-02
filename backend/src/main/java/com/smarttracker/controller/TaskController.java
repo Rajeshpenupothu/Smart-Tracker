@@ -1,8 +1,11 @@
 package com.smarttracker.controller;
 
 import com.smarttracker.model.DailyTask;
+import com.smarttracker.model.HourlyLog;
 import com.smarttracker.repository.DailyTaskRepository;
+import com.smarttracker.repository.HourlyLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,6 +20,9 @@ public class TaskController {
 
     @Autowired
     private DailyTaskRepository repository;
+
+    @Autowired
+    private HourlyLogRepository hourlyLogRepository;
 
     private static final Map<String, String> FE_TO_DB_KEYS = Map.of(
         "javaPractice", "java",
@@ -73,13 +79,23 @@ public class TaskController {
                 Map<String, Object> info = (Map<String, Object>) completed.get("gfg");
                 response.put("gfgCompleted", info.getOrDefault("done", false));
             }
-            // Include raw completedTasks for other data like hourlyLog
+
+            // Fetch hourly logs from the separate table
+            java.util.List<HourlyLog> hourlyLogs = hourlyLogRepository.findByDate(localDate);
+            Map<String, String> hourlyLogMap = new HashMap<>();
+            for (HourlyLog log : hourlyLogs) {
+                hourlyLogMap.put(String.valueOf(log.getHour()), log.getActivity());
+            }
+            
+            // Merge into completedTasks for frontend compatibility
+            completed.put("hourlyLog", hourlyLogMap);
             response.put("completedTasks", completed);
         }
         return response;
     }
 
     @PostMapping
+    @Transactional
     public DailyTask saveOrUpdateTask(@RequestBody Map<String, Object> payload) {
         String dateStr = (String) payload.get("date");
         LocalDate date = (dateStr != null) ? LocalDate.parse(dateStr) : LocalDate.now();
@@ -109,7 +125,26 @@ public class TaskController {
         
         // Handle hourlyLog
         if (payload.containsKey("hourlyLog")) {
-            nestedTasks.put("hourlyLog", payload.get("hourlyLog"));
+            Object hourlyLogObj = payload.get("hourlyLog");
+            if (hourlyLogObj instanceof Map) {
+                Map<String, String> hourlyLogMap = (Map<String, String>) hourlyLogObj;
+                
+                // Clear existing logs for this date to avoid duplicates
+                hourlyLogRepository.deleteByDate(date);
+                
+                // Save new logs
+                for (Map.Entry<String, String> entry : hourlyLogMap.entrySet()) {
+                    String activity = entry.getValue();
+                    if (activity != null && !activity.trim().isEmpty()) {
+                        try {
+                            int hour = Integer.parseInt(entry.getKey());
+                            hourlyLogRepository.save(new HourlyLog(date, hour, activity));
+                        } catch (NumberFormatException e) {
+                            // Skip invalid hour keys
+                        }
+                    }
+                }
+            }
         }
 
         task.setCompletedTasks(nestedTasks);
