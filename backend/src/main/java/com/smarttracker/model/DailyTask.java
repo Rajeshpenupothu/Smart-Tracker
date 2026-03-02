@@ -20,17 +20,21 @@ public class DailyTask {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "user_email")
+    private String userEmail;
+
     @Column(name = "completed_tasks", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> completedTasks = new HashMap<>(); // Store as JSON map
 
     public DailyTask() {}
 
-    public DailyTask(Long id, LocalDate date, String notes, Map<String, Object> completedTasks) {
+    public DailyTask(Long id, LocalDate date, String notes, Map<String, Object> completedTasks, String userEmail) {
         this.id = id;
         this.date = date;
         this.notes = notes;
         this.completedTasks = completedTasks;
+        this.userEmail = userEmail;
     }
 
     public Long getId() { return id; }
@@ -44,4 +48,7 @@ public class DailyTask {
 
     public Map<String, Object> getCompletedTasks() { return completedTasks; }
     public void setCompletedTasks(Map<String, Object> completedTasks) { this.completedTasks = completedTasks; }
+
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 }

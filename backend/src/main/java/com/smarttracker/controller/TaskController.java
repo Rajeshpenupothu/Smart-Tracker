@@ -31,9 +31,9 @@ public class TaskController {
     );
 
     @GetMapping("/{date}")
-    public Map<String, Object> getTaskByDate(@PathVariable String date) {
+    public Map<String, Object> getTaskByDate(@PathVariable String date, @RequestParam String userEmail) {
         LocalDate localDate = LocalDate.parse(date);
-        DailyTask task = repository.findByDate(localDate).orElse(new DailyTask());
+        DailyTask task = repository.findByDateAndUserEmail(localDate, userEmail).orElse(new DailyTask());
         
         Map<String, Object> response = new HashMap<>();
         response.put("id", task.getId());
@@ -81,7 +81,7 @@ public class TaskController {
             }
 
             // Fetch hourly logs from the separate table
-            java.util.List<HourlyLog> hourlyLogs = hourlyLogRepository.findByDate(localDate);
+            java.util.List<HourlyLog> hourlyLogs = hourlyLogRepository.findByDateAndUserEmail(localDate, userEmail);
             Map<String, String> hourlyLogMap = new HashMap<>();
             for (HourlyLog log : hourlyLogs) {
                 hourlyLogMap.put(String.valueOf(log.getHour()), log.getActivity());
@@ -98,9 +98,11 @@ public class TaskController {
     @Transactional
     public DailyTask saveOrUpdateTask(@RequestBody Map<String, Object> payload) {
         String dateStr = (String) payload.get("date");
+        String userEmail = (String) payload.get("userEmail");
         LocalDate date = (dateStr != null) ? LocalDate.parse(dateStr) : LocalDate.now();
-        DailyTask task = repository.findByDate(date).orElse(new DailyTask());
+        DailyTask task = repository.findByDateAndUserEmail(date, userEmail).orElse(new DailyTask());
         task.setDate(date);
+        task.setUserEmail(userEmail);
         task.setNotes((String) payload.get("notes"));
 
         Map<String, Object> nestedTasks = new HashMap<>();
@@ -130,7 +132,7 @@ public class TaskController {
                 Map<String, String> hourlyLogMap = (Map<String, String>) hourlyLogObj;
                 
                 // Clear existing logs for this date to avoid duplicates
-                hourlyLogRepository.deleteByDate(date);
+                hourlyLogRepository.deleteByDateAndUserEmail(date, userEmail);
                 
                 // Save new logs
                 for (Map.Entry<String, String> entry : hourlyLogMap.entrySet()) {
@@ -138,7 +140,7 @@ public class TaskController {
                     if (activity != null && !activity.trim().isEmpty()) {
                         try {
                             int hour = Integer.parseInt(entry.getKey());
-                            hourlyLogRepository.save(new HourlyLog(date, hour, activity));
+                            hourlyLogRepository.save(new HourlyLog(date, hour, activity, userEmail));
                         } catch (NumberFormatException e) {
                             // Skip invalid hour keys
                         }
@@ -151,8 +153,8 @@ public class TaskController {
         return repository.save(task);
     }
     @GetMapping
-    public java.util.List<Map<String, Object>> getAllTasks() {
-        return repository.findAllByOrderByDateDesc().stream().map(task -> {
+    public java.util.List<Map<String, Object>> getAllTasks(@RequestParam String userEmail) {
+        return repository.findAllByUserEmailOrderByDateDesc(userEmail).stream().map(task -> {
             Map<String, Object> summary = new HashMap<>();
             summary.put("id", task.getId());
             summary.put("date", task.getDate());

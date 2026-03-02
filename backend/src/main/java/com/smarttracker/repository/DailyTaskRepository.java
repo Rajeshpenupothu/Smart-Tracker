@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface DailyTaskRepository extends JpaRepository<DailyTask, Long> {
-    Optional<DailyTask> findByDate(LocalDate date);
-    Optional<DailyTask> findFirstByOrderByDateDesc();
-    java.util.List<DailyTask> findAllByOrderByDateDesc();
+    Optional<DailyTask> findByDateAndUserEmail(LocalDate date, String userEmail);
+    List<DailyTask> findAllByUserEmailOrderByDateDesc(String userEmail);
 }

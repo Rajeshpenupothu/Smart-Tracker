@@ -14,9 +14,10 @@ const DailyLogs = () => {
     }, [selectedDate]);
 
     const fetchLogForDate = async (date) => {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
         setIsLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/api/tasks/${date}`);
+            const res = await axios.get(`${API_URL}/api/tasks/${date}?userEmail=${user.email}`);
             setCurrentLog(res.data.id ? res.data : null);
         } catch (error) {
             setCurrentLog(null);

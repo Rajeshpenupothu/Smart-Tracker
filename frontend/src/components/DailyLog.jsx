@@ -344,7 +344,7 @@ const DailyLog = () => {
 
     const fetchTask = async (date) => {
         try {
-            const res = await axios.get(`${API_URL}/api/tasks/${date}`);
+            const res = await axios.get(`${API_URL}/api/tasks/${date}?userEmail=${user.email}`);
             if (res.data.id) {
                 setTask({
                     ...res.data,
@@ -378,6 +378,7 @@ const DailyLog = () => {
             // Merge hourlyLog into completedTasks before saving
             const taskToSave = {
                 ...task,
+                userEmail: user.email,
                 completedTasks: {
                     ...task.completedTasks,
                     hourlyLog: task.hourlyLog

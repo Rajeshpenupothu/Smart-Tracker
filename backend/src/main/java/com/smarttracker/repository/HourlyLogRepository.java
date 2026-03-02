@@ -6,6 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface HourlyLogRepository extends JpaRepository<HourlyLog, Long> {
-    List<HourlyLog> findByDate(LocalDate date);
-    void deleteByDate(LocalDate date);
+    List<HourlyLog> findByDateAndUserEmail(LocalDate date, String userEmail);
+    void deleteByDateAndUserEmail(LocalDate date, String userEmail);
 }

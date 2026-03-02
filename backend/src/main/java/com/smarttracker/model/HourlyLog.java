@@ -19,12 +19,16 @@ public class HourlyLog {
     @Column(name = "activity", columnDefinition = "TEXT")
     private String activity;
 
+    @Column(name = "user_email")
+    private String userEmail;
+
     public HourlyLog() {}
 
-    public HourlyLog(LocalDate date, Integer hour, String activity) {
+    public HourlyLog(LocalDate date, Integer hour, String activity, String userEmail) {
         this.date = date;
         this.hour = hour;
         this.activity = activity;
+        this.userEmail = userEmail;
     }
 
     public Long getId() { return id; }
@@ -38,4 +42,7 @@ public class HourlyLog {
 
     public String getActivity() { return activity; }
     public void setActivity(String activity) { this.activity = activity; }
+
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 }
