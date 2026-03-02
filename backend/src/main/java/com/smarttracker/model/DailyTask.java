@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.HashMap;
 
 @Entity
-@Table(name = "daily_log")
+@Table(name = "daily_log", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"log_date", "user_email"})
+})
 public class DailyTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
