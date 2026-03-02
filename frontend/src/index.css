@@ -583,15 +583,15 @@ input[type="checkbox"] {
 }
 
 .dark-theme-calendar .react-calendar__tile--active {
-  background: var(--accent-color) !important;
-  color: var(--bg-color) !important;
+  background: rgba(0, 255, 157, 0.15) !important;
+  color: var(--accent-color) !important;
   border-radius: 8px;
   font-weight: 800;
-  box-shadow: 0 0 20px rgba(0, 255, 157, 0.6), 0 0 40px rgba(0, 255, 157, 0.2);
+  box-shadow: inset 0 0 10px rgba(0, 255, 157, 0.2), 0 0 15px rgba(0, 255, 157, 0.4);
   transform: scale(1.08);
   /* Slightly larger for better feedback */
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(0, 255, 157, 0.5) !important;
   position: relative;
   overflow: visible;
 }
@@ -686,8 +686,9 @@ input[type="checkbox"] {
 
 .dark-theme-calendar .react-calendar__tile--active:enabled:hover,
 .dark-theme-calendar .react-calendar__tile--active:enabled:focus {
-  background: var(--button-hover) !important;
-  box-shadow: 0 0 20px rgba(0, 255, 157, 0.6);
+  background: rgba(0, 255, 157, 0.25) !important;
+  box-shadow: inset 0 0 12px rgba(0, 255, 157, 0.3), 0 0 20px rgba(0, 255, 157, 0.5);
+  color: var(--accent-color) !important;
 }
 
 /* =====================
