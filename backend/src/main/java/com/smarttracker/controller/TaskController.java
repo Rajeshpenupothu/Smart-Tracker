@@ -189,6 +189,8 @@ public class TaskController {
             summary.put("preview", preview);
             return summary;
         }).toList();
+    }
+
     @GetMapping("/favorites")
     public java.util.List<Map<String, Object>> getFavorites(@RequestParam String userEmail) {
         return repository.findAllByUserEmailOrderByDateDesc(userEmail).stream()
