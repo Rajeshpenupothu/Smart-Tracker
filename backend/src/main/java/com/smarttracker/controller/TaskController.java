@@ -1,9 +1,7 @@
 package com.smarttracker.controller;
 
 import com.smarttracker.model.DailyTask;
-import com.smarttracker.model.HourlyLog;
 import com.smarttracker.repository.DailyTaskRepository;
-import com.smarttracker.repository.HourlyLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +19,6 @@ public class TaskController {
     @Autowired
     private DailyTaskRepository repository;
 
-    @Autowired
-    private HourlyLogRepository hourlyLogRepository;
-
     private static final Map<String, String> FE_TO_DB_KEYS = Map.of(
         "javaPractice", "java",
         "bookReading", "book reading",
@@ -39,6 +34,8 @@ public class TaskController {
         response.put("id", task.getId());
         response.put("date", task.getDate());
         response.put("notes", task.getNotes());
+        response.put("isFavorite", false);
+        response.put("favoriteTitle", "");
         
         Map<String, Object> completed = task.getCompletedTasks();
         if (completed != null) {
@@ -80,15 +77,11 @@ public class TaskController {
                 response.put("gfgCompleted", info.getOrDefault("done", false));
             }
 
-            // Fetch hourly logs from the separate table
-            java.util.List<HourlyLog> hourlyLogs = hourlyLogRepository.findByDateAndUserEmail(localDate, userEmail);
-            Map<String, String> hourlyLogMap = new HashMap<>();
-            for (HourlyLog log : hourlyLogs) {
-                hourlyLogMap.put(String.valueOf(log.getHour()), log.getActivity());
-            }
-            
-            // Merge into completedTasks for frontend compatibility
-            completed.put("hourlyLog", hourlyLogMap);
+            // Favorites data
+            response.put("isFavorite", completed.getOrDefault("isFavorite", false));
+            response.put("favoriteTitle", completed.getOrDefault("favoriteTitle", ""));
+
+            // The hourlyLog is already inside the completedTasks map in the database
             response.put("completedTasks", completed);
         }
         return response;
@@ -125,28 +118,13 @@ public class TaskController {
         nestedTasks.put("leetCode", Map.of("done", payload.getOrDefault("leetCodeCompleted", false)));
         nestedTasks.put("gfg", Map.of("done", payload.getOrDefault("gfgCompleted", false)));
         
+        // Handle Favorites
+        nestedTasks.put("isFavorite", payload.getOrDefault("isFavorite", false));
+        nestedTasks.put("favoriteTitle", payload.getOrDefault("favoriteTitle", ""));
+        
         // Handle hourlyLog
         if (payload.containsKey("hourlyLog")) {
-            Object hourlyLogObj = payload.get("hourlyLog");
-            if (hourlyLogObj instanceof Map) {
-                Map<String, String> hourlyLogMap = (Map<String, String>) hourlyLogObj;
-                
-                // Clear existing logs for this date to avoid duplicates
-                hourlyLogRepository.deleteByDateAndUserEmail(date, userEmail);
-                
-                // Save new logs
-                for (Map.Entry<String, String> entry : hourlyLogMap.entrySet()) {
-                    String activity = entry.getValue();
-                    if (activity != null && !activity.trim().isEmpty()) {
-                        try {
-                            int hour = Integer.parseInt(entry.getKey());
-                            hourlyLogRepository.save(new HourlyLog(date, hour, activity, userEmail));
-                        } catch (NumberFormatException e) {
-                            // Skip invalid hour keys
-                        }
-                    }
-                }
-            }
+            nestedTasks.put("hourlyLog", payload.get("hourlyLog"));
         }
 
         task.setCompletedTasks(nestedTasks);
@@ -211,5 +189,19 @@ public class TaskController {
             summary.put("preview", preview);
             return summary;
         }).toList();
+    @GetMapping("/favorites")
+    public java.util.List<Map<String, Object>> getFavorites(@RequestParam String userEmail) {
+        return repository.findAllByUserEmailOrderByDateDesc(userEmail).stream()
+            .filter(task -> {
+                Map<String, Object> completed = task.getCompletedTasks();
+                return completed != null && Boolean.TRUE.equals(completed.get("isFavorite"));
+            })
+            .map(task -> {
+                Map<String, Object> fav = new HashMap<>();
+                fav.put("id", task.getId());
+                fav.put("date", task.getDate().toString());
+                fav.put("title", task.getCompletedTasks().getOrDefault("favoriteTitle", "Special Day"));
+                return fav;
+            }).toList();
     }
 }

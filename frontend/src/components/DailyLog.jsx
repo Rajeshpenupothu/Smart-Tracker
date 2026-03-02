@@ -368,7 +368,9 @@ const DailyLog = () => {
             bookReadingList: [],
             newSkillList: [],
             notes: '',
-            hourlyLog: {}
+            hourlyLog: {},
+            isFavorite: false,
+            favoriteTitle: ''
         });
     };
 
@@ -403,18 +405,17 @@ const DailyLog = () => {
     };
 
     const handleMarkSpecialDay = async () => {
-        const title = window.prompt("What makes this day special? (e.g. First Job, Hackathon)");
-        if (title && title.trim()) {
-            try {
-                await axios.post(`${API_URL}/api/special-days`, {
-                    date: selectedDate,
-                    title: title.trim()
-                });
-                alert("Successfully marked as a Special Day! ⭐");
-            } catch (error) {
-                console.error("Error saving special day:", error);
-                alert("Failed to save special day");
-            }
+        const title = window.prompt("What makes this day special? (e.g. First Job, Hackathon)", task.favoriteTitle || "");
+        if (title !== null) {
+            const isFav = title.trim().length > 0;
+            const updatedTask = {
+                ...task,
+                isFavorite: isFav,
+                favoriteTitle: title.trim()
+            };
+            setTask(updatedTask);
+            // We need to pass the updated task to handleSave or use a functional update
+            setTimeout(() => handleSave(false), 100);
         }
     };
 

@@ -21,8 +21,9 @@ const Favorites = () => {
     }, []);
 
     const fetchSpecialDays = async () => {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
         try {
-            const res = await axios.get(`${API_URL}/api/special-days`);
+            const res = await axios.get(`${API_URL}/api/tasks/favorites?userEmail=${user.email}`);
             setSpecialDays(res.data);
         } catch (error) {
             console.error("Error fetching special days:", error);
