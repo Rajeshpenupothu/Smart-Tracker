@@ -503,22 +503,30 @@ input[type="checkbox"] {
 
 /* React Calendar Dark Theme Overrides */
 .dark-theme-calendar {
-  background-color: transparent !important;
+  background-color: #0d1117 !important;
+  /* Solid dark background */
   color: #c9d1d9 !important;
-  border: none !important;
-  width: 100% !important;
-  max-width: 400px;
+  border: 1px solid #30363d !important;
+  border-radius: 12px;
+  width: 350px !important;
+  /* More compact fixed width */
+  max-width: 90vw;
   font-family: inherit !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .dark-theme-calendar .react-calendar__navigation {
   margin-bottom: 1rem;
+  background: #0d1117 !important;
+  /* Ensure navigation area is dark */
+  border-bottom: 1px solid #30363d;
 }
 
 .dark-theme-calendar .react-calendar__navigation button {
   color: #00ff9d !important;
   min-width: 44px;
-  background: none;
+  background: #0d1117 !important;
+  /* Ensure dark background */
   font-size: 1.2rem;
   font-weight: bold;
 }
@@ -540,10 +548,12 @@ input[type="checkbox"] {
   text-decoration: none;
 }
 
-.dark-theme-calendar .react-calendar__month-view__days__day {
+.dark-theme-calendar .react-calendar__tile {
+  background: #0d1117 !important;
   color: #c9d1d9 !important;
   padding: 10px !important;
   border-radius: 6px;
+  border: 1px solid transparent !important;
 }
 
 .dark-theme-calendar .react-calendar__month-view__days__day--weekend {
