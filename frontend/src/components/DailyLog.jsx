@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import API_URL from '../api';
 import { formatDisplayDate } from '../utils/dateUtils';
 
@@ -286,7 +288,13 @@ const HourlyTrackSection = ({ task, setTask, isReadOnly, onSave }) => {
 };
 
 const DailyLog = () => {
-    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('en-CA');
+
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString('en-CA');
+
     const getUser = () => {
         try {
             const data = localStorage.getItem('user');
@@ -299,8 +307,9 @@ const DailyLog = () => {
     };
     const user = getUser();
 
-    const savedSelectedDate = localStorage.getItem('selectedDate') || todayStr;
     const [selectedDate, setSelectedDate] = useState(todayStr); // Always default to today on fresh load
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
     const [task, setTask] = useState({
         date: todayStr,
         leetCodeCompleted: false,
@@ -315,7 +324,9 @@ const DailyLog = () => {
 
     const statusTimeoutRef = useRef(null);
 
-    const isReadOnly = selectedDate !== todayStr;
+    const isReadOnly = selectedDate !== todayStr && selectedDate !== yesterdayStr;
+    const isYesterday = selectedDate === yesterdayStr;
+
     const hasProgress = task.javaPracticeList?.length > 0 ||
         task.newSkillList?.length > 0 ||
         task.notes || task.leetCodeCompleted || task.gfgCompleted ||
@@ -445,15 +456,72 @@ const DailyLog = () => {
                 </h1>
             </div>
 
-            {/* Date row with ribbon badge */}
-            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', margin: '1rem 0 2rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 'clamp(0.9rem, 3vw, 1.1rem)', color: '#8b949e' }}>📅</span>
-                <span style={{ fontSize: 'clamp(1rem, 4vw, 1.3rem)', fontWeight: '600', color: '#c9d1d9', letterSpacing: '0.5px' }}>
-                    Log for <span style={{ color: '#00ff9d' }}>{formatDisplayDate(selectedDate)}</span>
-                </span>
-                {saveStatus === 'saving' && <span style={{ fontSize: '0.9rem', color: '#58a6ff' }}>⏳</span>}
-                {saveStatus === 'saved' && <span style={{ fontSize: '0.9rem', color: '#3fb950' }}>✅</span>}
-                {saveStatus === 'error' && <span style={{ fontSize: '0.9rem', color: '#f85149' }}>❌</span>}
+            {/* Date row with ribbon badge and calendar toggle */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0 2.5rem', gap: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                    <button
+                        className="premium-toggle-btn"
+                        onClick={() => setIsCalendarVisible(!isCalendarVisible)}
+                        style={{ padding: '0.6rem 1.2rem' }}
+                    >
+                        <span>📅 Log for: </span>
+                        <strong style={{ color: '#00ff9d' }}>{formatDisplayDate(selectedDate)}</strong>
+                        <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{
+                                marginLeft: '8px',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                transform: isCalendarVisible ? 'rotate(180deg)' : 'rotate(0deg)',
+                                opacity: 0.8,
+                                color: isCalendarVisible ? '#00ff9d' : 'inherit'
+                            }}
+                        >
+                            <path d="m6 9 6 6 6-6"></path>
+                        </svg>
+                    </button>
+                    {saveStatus === 'saving' && <span style={{ fontSize: '0.9rem', color: '#58a6ff' }}>⏳</span>}
+                    {saveStatus === 'saved' && <span style={{ fontSize: '0.9rem', color: '#3fb950' }}>✅</span>}
+                    {saveStatus === 'error' && <span style={{ fontSize: '0.9rem', color: '#f85149' }}>❌</span>}
+                </div>
+
+                {isCalendarVisible && (
+                    <div className="premium-calendar-container" style={{ position: 'relative', top: 0, zIndex: 10 }}>
+                        <Calendar
+                            className="dark-theme-calendar"
+                            maxDate={today}
+                            onChange={(date) => {
+                                const offset = date.getTimezoneOffset();
+                                const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+                                setSelectedDate(localDate.toISOString().split('T')[0]);
+                                setIsCalendarVisible(false);
+                            }}
+                            value={new Date(selectedDate)}
+                        />
+                    </div>
+                )}
+
+                {isYesterday && (
+                    <div style={{
+                        fontSize: '0.85rem',
+                        color: '#ffa116',
+                        backgroundColor: 'rgba(255, 161, 22, 0.1)',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        border: '1px solid rgba(255, 161, 22, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                    }}>
+                        <span>✨</span> 24-hour grace period active. You can still edit yesterday's log!
+                    </div>
+                )}
             </div>
 
             {isReadOnly && !hasProgress ? (
@@ -515,8 +583,9 @@ const DailyLog = () => {
             )}
 
             <div className="save-btn-container">
-                {!isReadOnly && <button className="save-btn" onClick={handleSave}>💾 Save My Progress</button>}
+                {!isReadOnly && <button className="save-btn" onClick={() => handleSave()}>💾 Save Progress</button>}
                 {selectedDate === todayStr && <p style={{ color: '#8b949e', fontStyle: 'italic' }}>Ready for a new day. 🚀</p>}
+                {isYesterday && <p style={{ color: '#ffa116', fontStyle: 'italic' }}>Editing yesterday's log. Grace period active. 🕒</p>}
                 {isReadOnly && <p style={{ color: '#8b949e', fontStyle: 'italic' }}>Viewing historical data. This day is locked. 🔒</p>}
             </div>
         </div>
